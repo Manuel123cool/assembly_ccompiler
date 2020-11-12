@@ -1,0 +1,5 @@
+#!/bin/bash 
+
+as --gstabs main.s -o main.o
+as --gstabs read_file.s -o read_file.o
+ld main.o read_file.o -o manuel
