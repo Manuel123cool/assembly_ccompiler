@@ -1,4 +1,6 @@
   .section .data
+LINE_DONT_EXIST:
+  .ascii "Line dosnt exist"
   .section .bss
 
   .global _start
@@ -13,16 +15,21 @@ _start:
   addq $8, %rsp
 
   pushq %rax
-  pushq $6
+  pushq $7
   call readLine
   addq $16, %rsp
   
   movq %rax, %rsi
-
+  movq $200, %rdi #buffer size
+  cmpq $0, %rsi
+  jne not_zero
+  leaq LINE_DONT_EXIST, %rsi
+  movq $16, %rdi 
+not_zero:
   movq $4, %rax 
   movq $1, %rbx 
   movq %rsi, %rcx 
-  movq $200, %rdx 
+  movq %rdi, %rdx 
   int $0x80
 
   movq $1, %rax

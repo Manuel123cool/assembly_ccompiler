@@ -49,13 +49,15 @@ start_read:
   xorq %rsi, %rsi #line byte counter
 
 start_line_read:
-  cmpq %rdi, %r8
-  je end_read 
   movb BUFFER_DATA(, %rbx, 1), %dl #dl child of %rdx 
   cmpb $10, %dl
   jne not_reset 
   xorq %rsi, %rsi
   incq %r8
+  #clear rest of line buffer if not destination
+  cmpq %rdi, %r8
+  je end_read # finish if destination
+  call clearLineBuffer 
 not_reset:
   movb %dl, LINE_DATA(, %rsi, 1) 
   
@@ -115,5 +117,28 @@ end:
 
   leaq NAME_DATA, %rax 
 
+  popq %rbx
+
   leave
+  ret
+
+  .type clearLineBuffer, @function
+  .global clearLineBuffer
+clearLineBuffer:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  pushq %rbx #save variable
+
+  xorq %rbx, %rbx
+start_clear_loop:  
+  movb $0, LINE_DATA(, %rbx, 1) 
+  incq %rbx 
+  cmpq $LINE_SIZE, %rbx
+  je end_clear_loop
+  jmp start_clear_loop
+end_clear_loop:
+  popq %rbx
+
+  leave 
   ret
