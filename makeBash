@@ -2,4 +2,5 @@
 
 as --gstabs main.s -o main.o
 as --gstabs read_file.s -o read_file.o
-ld main.o read_file.o -o manuel
+as --gstabs write_file.s -o write_file.o
+ld main.o read_file.o write_file.o -o manuel

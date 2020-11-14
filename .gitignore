@@ -2,3 +2,5 @@ read_file.o
 manuel
 main.o
 read_file
+write_file.o
+hallo

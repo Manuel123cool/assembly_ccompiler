@@ -3,11 +3,11 @@
   .equ BUFFER_SIZE, 500
   .lcomm BUFFER_DATA, BUFFER_SIZE
 
-  .equ NAME_SIZE, 20
-  .lcomm NAME_DATA, NAME_SIZE
-
   .equ LINE_SIZE, 200
   .lcomm LINE_DATA, LINE_SIZE 
+
+  .equ NAME_SIZE, 200
+  .lcomm NAME_DATA, NAME_SIZE 
   .section .text
 
   .type readLine, @function
@@ -21,6 +21,7 @@ readLine:
   pushq %rdx
   pushq %rsi
   pushq %rdi
+  pushq %r8
 
   movq 24(%rbp), %rsi #address of name
   movq 16(%rbp), %rdi #line number 
@@ -33,9 +34,13 @@ readLine:
   int $0x80
 
   xorq %r8, %r8 #line counter
+  xorq %rsi, %rsi #line byte counter
+
 start_read: 
+  movq %rax, %r9
+
   movq $3, %rax 
-  movq %rax, %rbx 
+  movq %r9, %rbx 
   leaq BUFFER_DATA, %rcx 
   movq $BUFFER_SIZE, %rdx 
   int $0x80
@@ -46,7 +51,6 @@ start_read:
   #read into line buffer
   xorq %rbx, %rbx #byte counter 
   xorq %rdx, %rdx #byte parent
-  xorq %rsi, %rsi #line byte counter
 
 start_line_read:
   movb BUFFER_DATA(, %rbx, 1), %dl #dl child of %rdx 
@@ -79,11 +83,12 @@ not_reach_line:
   xorq %rax, %rax
 not_reach_line2: 
 
-  pushq %rdi
-  pushq %rsi
-  pushq %rdx
-  pushq %rcx
-  pushq %rbx
+  popq %r8
+  popq %rdi
+  popq %rsi
+  popq %rdx
+  popq %rcx
+  popq %rbx
   
   leave
   ret
@@ -123,7 +128,6 @@ end:
   ret
 
   .type clearLineBuffer, @function
-  .global clearLineBuffer
 clearLineBuffer:
   pushq %rbp
   movq %rsp, %rbp
