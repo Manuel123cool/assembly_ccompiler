@@ -142,8 +142,8 @@ first_check:
   movq %r9, %rbx 
   movq heap_begin, %rcx 
   #get size
-  movq current_break, %rsi
-  subq %rcx, %rsi
+  movq current_break, %rdi
+  subq %rcx, %rdi
   #get size end
   movq %rdi, %rdx 
   int $0x80
@@ -151,10 +151,10 @@ first_check:
   call countHeap 
   
   addq %r8, %rax
-  cmpq %rsi, %rax
+  cmpq %rdi, %rax
   jge get_more_heap 
  
-  cmpq %rsi, %rax
+  cmpq %rdi, %rax
   jl end_heap_pending 
 
 get_more_heap:
