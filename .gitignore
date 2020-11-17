@@ -4,3 +4,5 @@ main.o
 read_file
 write_file.o
 hallo
+test_com.o
+write_com.o

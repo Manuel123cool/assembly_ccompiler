@@ -5,7 +5,7 @@ current_break:
   .quad 0
 
   .section .bss
-  .equ BUFFER_SIZE, 5
+  .equ BUFFER_SIZE, 500
   .lcomm BUFFER_DATA, BUFFER_SIZE
   .section .text
 
