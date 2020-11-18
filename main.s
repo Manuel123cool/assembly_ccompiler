@@ -1,14 +1,9 @@
   .section .data
-LINE_DONT_EXIST:
-  .ascii "Line dosnt exist"
-LINE_DATA:
-  .ascii "Halli i am line number penis\n"
-hallo:
   .section .bss
 
-  .global _start
 
   .section .text
+  .global _start
 _start:
   movq %rsp, %rbp 
   
@@ -18,29 +13,12 @@ _start:
   
   pushq %rax
   xorq %rbx, %rbx
-  movb $0, %bl
-  movb $0, %bh
-  pushq %rbx
-  call testCom
-  addq $16, %rsp
-
-  pushq %rax
-  xorq %rbx, %rbx
-  movb $0, %bl
+  movb $2, %bl
   movb $1, %bh
   pushq %rbx
   call testCom
   addq $16, %rsp
 
-  pushq %rax
-  xorq %rbx, %rbx
-  movb $0, %bl
-  movb $2, %bh
-  pushq %rbx
-  call testCom
-  addq $16, %rsp
-
-  xorq %rbx, %rbx
   movq $1, %rax
   movq $0, %rbx
   int $0x80

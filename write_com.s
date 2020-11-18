@@ -5,8 +5,32 @@ section_bss:
   .ascii "  .section .bss\n"
 section_text:
   .ascii "  .section .text\n"
-  .section .bss
+start_text:
+  .ascii "  .global _start\n"
+start_label:
+  .ascii "_start:\n"
+move_text:
+  .ascii "  movq"
+#all 64 bit register as text
+rax_reg:
+  .ascii " %rax"
+rbx_reg:
+  .ascii " %rbx"
+rcx_reg:
+  .ascii " %rcx"
+rdx_reg:
+  .ascii " %rdx"
+rsi_reg:
+  .ascii " %rsi"
+rdi_reg:
+  .ascii " %rdi"
+rbp_reg:
+  .ascii " %rbp"
+rsp_reg:
+  .ascii " %rsp"
+#end of all 64 bit register as text
 
+  .section .bss
   .section .text
 
 
@@ -52,5 +76,92 @@ write_section_text:
   call writeLine
   addq $24, %rsp
 
+  leave
+  ret
+
+
+  .type write_start, @function
+  .global write_start
+write_start:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  pushq $17
+  pushq %rcx
+  pushq $start_text
+  call writeLine
+  addq $24, %rsp
+
+  pushq $8
+  pushq %rcx
+  pushq $start_label
+  call writeLine
+  addq $24, %rsp
+
+  leave
+  ret
+
+  .type write_move, @function
+  .global write_move
+write_move:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  pushq $6
+  pushq %rcx
+  pushq $move_text
+  call writeLine
+  addq $24, %rsp
+
+  #test first register
+  xorq %rdx, %rdx #rdx holds address
+  cmp $0, %bh
+  jne next_cmp1
+  leaq rax_reg, %rdx  
+
+next_cmp1:
+  cmp $1, %bh
+  jne next_cmp2
+  leaq rbx_reg, %rdx  
+
+next_cmp2:
+  cmp $2, %bh
+  jne next_cmp3
+  leaq rcx_reg, %rdx  
+
+next_cmp3:
+  cmp $3, %bh
+  jne next_cmp4
+  leaq rdx_reg, %rdx  
+
+next_cmp4:
+  cmp $4, %bh
+  jne next_cmp5
+  leaq rsi_reg, %rdx  
+
+next_cmp5:
+  cmp $5, %bh
+  jne next_cmp6
+  leaq rdi_reg, %rdx  
+
+next_cmp6:
+  cmp $6, %bh
+  jne next_cmp7
+  leaq rbp_reg, %rdx  
+
+next_cmp7:
+  cmp $7, %bh
+  jne next_cmp8
+  leaq rsp_reg, %rdx  
+next_cmp8: 
+
+#end loead first register
+
+  pushq $5
+  pushq %rcx
+  pushq %rdx
+  call writeLine
+  addq $24, %rsp
+ 
   leave
   ret

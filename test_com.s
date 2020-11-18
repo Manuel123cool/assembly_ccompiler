@@ -24,6 +24,9 @@ testCom:
   movq 16(%rbp), %rbx
 
   call testSection
+  call testStart
+  call testMov
+
   #redo register
   popq %rax
   popq %rdi
@@ -68,5 +71,31 @@ call_section_text:
   jmp end_test_section
 
 end_test_section:
+  leave
+  ret  
+
+
+  .type testStart, @function
+testStart:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  cmpb $1, %bl
+  jne end_test_section1  
+  call write_start    
+end_test_section1:
+  leave
+  ret  
+
+
+  .type testMov, @function
+testMov:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  cmpb $2, %bl
+  jne end_test_section2  
+  call write_move    
+end_test_section2:
   leave
   ret  
