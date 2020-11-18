@@ -20,6 +20,7 @@ testCom:
   pushq %rdi
   pushq %rax
 
+  movq 32(%rbp), %rsi
   movq 24(%rbp), %rcx
   movq 16(%rbp), %rbx
 

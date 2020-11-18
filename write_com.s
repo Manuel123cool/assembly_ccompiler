@@ -29,6 +29,8 @@ rbp_reg:
 rsp_reg:
   .ascii " %rsp"
 #end of all 64 bit register as text
+bang_txt:
+  .ascii " $"
 
   .section .bss
   .section .text
@@ -156,12 +158,35 @@ next_cmp7:
 next_cmp8: 
 
 #end loead first register
+#load number 
+  cmp $8, %bh
+  jne next_cmp9
+
+  pushq $2
+  pushq %rcx
+  pushq $bang_txt
+  call writeLine
+  addq $24, %rsp
+ 
+  movq %rbx, %rdi 
+  shrq $16, %rdi
+  pushq %rdi
+  pushq %rcx
+  pushq %rsi
+  call writeLine
+  addq $24, %rsp
+ 
+  jmp dont_do_reg
+next_cmp9: 
+#end load number
 
   pushq $5
   pushq %rcx
   pushq %rdx
   call writeLine
   addq $24, %rsp
- 
+
+dont_do_reg: 
+
   leave
   ret

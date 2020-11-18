@@ -1,4 +1,6 @@
   .section .data
+random_number:
+  .ascii "1234"
   .section .bss
 
 
@@ -11,10 +13,14 @@ _start:
   call readNameInBuffer
   addq $8, %rsp
   
+  
+  pushq $random_number
   pushq %rax
   xorq %rbx, %rbx
+  movb $4, %bh
+  shlq $8, %rbx
   movb $2, %bl
-  movb $1, %bh
+  movb $8, %bh
   pushq %rbx
   call testCom
   addq $16, %rsp
