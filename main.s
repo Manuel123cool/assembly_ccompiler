@@ -1,6 +1,6 @@
   .section .data
 random_number:
-  .ascii "1234"
+  .ascii " hallo"
   .section .bss
 
 
@@ -17,10 +17,15 @@ _start:
   pushq $random_number
   pushq %rax
   xorq %rbx, %rbx
-  movb $4, %bh
+  xorq %rdx, %rdx
+  movb $2, %dh 
+  shlq $32, %rdx
+  orq %rdx, %rbx
+
+  movb $6, %bh
   shlq $8, %rbx
   movb $2, %bl
-  movb $8, %bh
+  movb $9, %bh
   pushq %rbx
   call testCom
   addq $16, %rsp

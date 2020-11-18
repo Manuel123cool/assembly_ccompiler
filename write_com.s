@@ -32,6 +32,9 @@ rsp_reg:
 bang_txt:
   .ascii " $"
 
+comma_txt:
+  .ascii ","
+
   .section .bss
   .section .text
 
@@ -179,7 +182,23 @@ next_cmp8:
   jmp dont_do_reg
 next_cmp9: 
 #end load number
+#load label
+  cmp $9, %bh
+  jne next_cmp10
 
+  movq %rbx, %rdi 
+  shlq $40, %rdi
+  shrq $40, %rdi
+  shrq $16, %rdi
+  pushq %rdi
+  pushq %rcx
+  pushq %rsi
+  call writeLine
+  addq $24, %rsp
+ 
+  jmp dont_do_reg 
+next_cmp10:
+#end load label
   pushq $5
   pushq %rcx
   pushq %rdx
@@ -187,6 +206,62 @@ next_cmp9:
   addq $24, %rsp
 
 dont_do_reg: 
+
+#do second operand
+  pushq $1
+  pushq %rcx
+  pushq $comma_txt
+  call writeLine
+  addq $24, %rsp
+ 
+  xorq %rdx, %rdx #rdx holds address
+  shrq $32, %rbx 
+
+  cmp $0, %bh
+  jne next_cmps1
+  leaq rax_reg, %rdx  
+
+next_cmps1:
+  cmp $1, %bh
+  jne next_cmps2
+  leaq rbx_reg, %rdx  
+
+next_cmps2:
+  cmp $2, %bh
+  jne next_cmps3
+  leaq rcx_reg, %rdx  
+
+next_cmps3:
+  cmp $3, %bh
+  jne next_cmps4
+  leaq rdx_reg, %rdx  
+
+next_cmps4:
+  cmp $4, %bh
+  jne next_cmps5
+  leaq rsi_reg, %rdx  
+
+next_cmps5:
+  cmp $5, %bh
+  jne next_cmps6
+  leaq rdi_reg, %rdx  
+
+next_cmps6:
+  cmp $6, %bh
+  jne next_cmps7
+  leaq rbp_reg, %rdx  
+
+next_cmps7:
+  cmp $7, %bh
+  jne next_cmps8
+  leaq rsp_reg, %rdx  
+next_cmps8: 
+
+  pushq $5
+  pushq %rcx
+  pushq %rdx
+  call writeLine
+  addq $24, %rsp
 
   leave
   ret
