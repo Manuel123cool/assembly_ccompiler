@@ -172,6 +172,8 @@ next_cmp8:
   addq $24, %rsp
  
   movq %rbx, %rdi 
+  shlq $40, %rdi
+  shrq $40, %rdi
   shrq $16, %rdi
   pushq %rdi
   pushq %rcx
@@ -257,11 +259,53 @@ next_cmps7:
   leaq rsp_reg, %rdx  
 next_cmps8: 
 
+#load number 
+  cmp $8, %bh
+  jne next_cmps9
+
+  pushq $2
+  pushq %rcx
+  pushq $bang_txt
+  call writeLine
+  addq $24, %rsp
+ 
+  movq %rbx, %rdi 
+  shlq $40, %rdi
+  shrq $40, %rdi
+  shrq $16, %rdi
+  pushq %rdi
+  pushq %rcx
+  pushq %rsi
+  call writeLine
+  addq $24, %rsp
+ 
+  jmp dont_do_reg1
+next_cmps9: 
+#end load number
+#load label
+  cmp $9, %bh
+  jne next_cmps10
+
+  movq %rbx, %rdi 
+  shlq $40, %rdi
+  shrq $40, %rdi
+  shrq $16, %rdi
+  pushq %rdi
+  pushq %rcx
+  pushq %rsi
+  call writeLine
+  addq $24, %rsp
+ 
+  jmp dont_do_reg1 
+next_cmps10:
+#end load label
   pushq $5
   pushq %rcx
   pushq %rdx
   call writeLine
   addq $24, %rsp
+
+dont_do_reg1: 
 
   leave
   ret
