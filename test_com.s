@@ -20,13 +20,15 @@ testCom:
   pushq %rdi
   pushq %rax
 
-  movq 32(%rbp), %rsi
-  movq 24(%rbp), %rcx
-  movq 16(%rbp), %rbx
+  movq 32(%rbp), %rsi #buffer address
+  movq 24(%rbp), %rcx #name address
+  movq 16(%rbp), %rbx #data settings
 
   call testSection
   call testStart
   call testMov
+  call testAscii
+  call testLabel
 
   #redo register
   popq %rax
@@ -98,5 +100,29 @@ testMov:
   jne end_test_section2  
   call write_move    
 end_test_section2:
+  leave
+  ret  
+
+  .type testAscii, @function
+testAscii:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  cmpb $3, %bl
+  jne end_test_section3  
+  call write_ascii    
+end_test_section3:
+  leave
+  ret  
+
+  .type testLabel, @function
+testLabel:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  cmpb $4, %bl
+  jne end_test_section4  
+  call writeLabel    
+end_test_section4:
   leave
   ret  

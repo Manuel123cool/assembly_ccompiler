@@ -5,4 +5,5 @@ as --gstabs read_file.s -o read_file.o
 as --gstabs write_file.s -o write_file.o
 as --gstabs test_com.s -o test_com.o
 as --gstabs write_com.s -o write_com.o
-ld main.o read_file.o write_file.o write_com.o test_com.o -o manuel
+as --gstabs read_com.s -o read_com.o
+ld main.o read_file.o write_file.o write_com.o test_com.o read_com.o -o manuel

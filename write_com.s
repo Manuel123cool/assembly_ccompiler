@@ -31,10 +31,14 @@ rsp_reg:
 #end of all 64 bit register as text
 bang_txt:
   .ascii " $"
-
 comma_txt:
   .ascii ","
-
+ascii_txt:
+  .ascii "  .ascii \""
+parentheses_txt:
+  .ascii "\""
+colon_txt:
+  .ascii ":"
   .section .bss
   .section .text
 
@@ -259,29 +263,6 @@ next_cmps7:
   leaq rsp_reg, %rdx  
 next_cmps8: 
 
-#load number 
-  cmp $8, %bh
-  jne next_cmps9
-
-  pushq $2
-  pushq %rcx
-  pushq $bang_txt
-  call writeLine
-  addq $24, %rsp
- 
-  movq %rbx, %rdi 
-  shlq $40, %rdi
-  shrq $40, %rdi
-  shrq $16, %rdi
-  pushq %rdi
-  pushq %rcx
-  pushq %rsi
-  call writeLine
-  addq $24, %rsp
- 
-  jmp dont_do_reg1
-next_cmps9: 
-#end load number
 #load label
   cmp $9, %bh
   jne next_cmps10
@@ -306,6 +287,57 @@ next_cmps10:
   addq $24, %rsp
 
 dont_do_reg1: 
+
+  leave
+  ret
+
+
+  .type write_ascii, @function
+  .global write_ascii
+write_ascii:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  pushq $10
+  pushq %rcx
+  pushq $ascii_txt
+  call writeLine
+  addq $24, %rsp
+
+  shrq $32, %rbx
+  pushq %rbx
+  pushq %rcx
+  pushq %rsi
+  call writeLine
+  addq $24, %rsp
+
+  pushq $1
+  pushq %rcx
+  pushq $parentheses_txt
+  call writeLine
+  addq $24, %rsp
+
+  leave
+  ret
+
+  .type writeLabel, @function
+  .global writeLabel
+writeLabel:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  shrq $32, %rbx
+  pushq %rbx
+  pushq %rcx
+  pushq %rsi
+  call writeLine
+  addq $24, %rsp
+
+  pushq $1
+  pushq %rcx
+  pushq $colon_txt
+  call writeLine
+  addq $24, %rsp
 
   leave
   ret
