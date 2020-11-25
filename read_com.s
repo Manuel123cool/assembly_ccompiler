@@ -3,7 +3,8 @@ print_cmp_txt:
   .ascii "print(\""
 exe_s:
   .ascii "exe.s\0"
-
+new_line:
+  .ascii "\n"
   .section .bss
   .equ BUFFER_SIZE, 500
   .lcomm BUFFER_DATA, BUFFER_SIZE
@@ -66,6 +67,7 @@ start_read_line:
   pushq %rax
   call countBuffer
   addq $8, %rsp
+  movq %rax, %r9 #holds length
 
   pushq %rcx
   pushq %rax 
@@ -89,6 +91,22 @@ start_read_line:
   call testCom
   addq $24, %rsp
   #print label end
+  call printNewLine
+  #print ascii
+  xorq %rdx, %rdx #input arguments
+  pushq %rax 
+  pushq $exe_s
+  movb $3, %dl 
+  movb $0, %dh 
+
+  subq $9, %r9
+  shlq $32, %r9
+  orq %r9, %rdx
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #end print ascii
+  call printNewLine
 not_print:
   jmp start_read_line
 
@@ -200,6 +218,26 @@ end_count_loop:
   popq %rbx
   popq %rcx
   popq %rdx
+
+  leave
+  ret
+
+.type printNewLine, @function
+printNewLine:
+  pushq %rbp
+  movq %rsp, %rbp  
+  
+  pushq %rax
+
+  #print new line
+  pushq $1
+  pushq $exe_s
+  pushq $new_line
+  call writeLine
+  addq $24, %rsp
+  #end print new line
+
+  pop %rax
 
   leave
   ret
