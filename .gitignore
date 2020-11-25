@@ -7,3 +7,4 @@ hallo
 test_com.o
 write_com.o
 read_com.o
+exe.s

@@ -1,10 +1,15 @@
   .section .data
 print_cmp_txt:
   .ascii "print(\""
+exe_s:
+  .ascii "exe.s\0"
+
   .section .bss
   .equ BUFFER_SIZE, 500
   .lcomm BUFFER_DATA, BUFFER_SIZE
 
+  .equ PRINT_LABEL_SIZE, 5
+  .lcomm PRINT_LABEL, PRINT_LABEL_SIZE
   .section .text
 
   .type setupDataSection, @function
@@ -26,8 +31,28 @@ setupDataSection:
   xorq %rbx, %rbx #counter
   xorq %rcx, %rcx #address of line
 
+  #print data section
+  xorq %rdx, %rdx #input arguments
+  pushq $0
+  pushq $exe_s
+  movb $0, %dl 
+  movb $0, %dh 
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #print data section end
+
 start_read_line:
   incq %rbx
+
+  #setup label 
+  movq %rbx, %rdx
+  addq $48, %rdx
+  xorq %rsi, %rsi #input arguments
+  movb $108, PRINT_LABEL(, %rsi, 1)
+  incq %rsi
+  movb %dl, PRINT_LABEL(, %rsi, 1)
+  #setup label end
 
   pushq %rdi
   pushq %rbx
@@ -47,13 +72,25 @@ start_read_line:
   call readPrint
   addq $16, %rsp
 
-  movq %rax, %rsi
+  cmpq $0, %rax
+  je not_print
+  
+  #print label
+  xorq %rdx, %rdx #input arguments
+  pushq $PRINT_LABEL 
+  pushq $exe_s
+  movb $4, %dl 
+  movb $0, %dh 
 
-  movq $4, %rax 
-  movq $1, %rbx 
-  movq %rsi, %rcx 
-  movq $20, %rdx 
-  int $0x80
+  movl $2, %r8d
+  shlq $32, %r8
+  orq %r8, %rdx
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #print label end
+not_print:
+  jmp start_read_line
 
 end_read_line:
   popq %r9
@@ -92,6 +129,7 @@ readPrint:
   movq %rsi, %rcx #line address counter
   leaq print_cmp_txt, %rdx #to cmp string address counter
 start_cmp_loop:
+   xorq %r8, %r8
    movb (%rcx), %r8b 
    cmpb (%rdx), %r8b
    jne end_fun

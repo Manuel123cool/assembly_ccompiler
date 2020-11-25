@@ -62,6 +62,9 @@ start_line_read:
   cmpq %rdi, %r8
   je end_read # finish if destination
   call clearLineBuffer 
+  
+  incq %rbx #skip new line
+  jmp start_line_read
 not_reset:
   movb %dl, LINE_DATA(, %rsi, 1) 
   
