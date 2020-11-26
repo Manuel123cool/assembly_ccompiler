@@ -22,6 +22,7 @@ readLine:
   pushq %rsi
   pushq %rdi
   pushq %r8
+  pushq %r9
 
   movq 24(%rbp), %rsi #address of name
   movq 16(%rbp), %rdi #line number 
@@ -32,13 +33,12 @@ readLine:
   movq $0, %rcx 
   movq $0666, %rdx 
   int $0x80
+  movq %rax, %r9 #holds descriptor
 
   xorq %r8, %r8 #line counter
-  xorq %rsi, %rsi #line byte counter
+  xorq %rsi, %rsi #line byte co7nter
 
 start_read: 
-  movq %rax, %r9
-
   movq $3, %rax 
   movq %r9, %rbx 
   leaq BUFFER_DATA, %rcx 
@@ -85,7 +85,16 @@ not_reach_line:
   jne not_reach_line2
   xorq %rax, %rax
 not_reach_line2: 
+  pushq %rax
 
+  #close file
+  movq $6, %rax
+  movq %r9, %rbx
+  int $0x80
+
+  popq %rax
+
+  popq %r9
   popq %r8
   popq %rdi
   popq %rsi
@@ -145,6 +154,26 @@ start_clear_loop:
   je end_clear_loop
   jmp start_clear_loop
 end_clear_loop:
+  popq %rbx
+
+  leave 
+  ret
+
+  .type clearBigBuffer, @function
+clearBigBuffer:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  pushq %rbx #save variable
+
+  xorq %rbx, %rbx
+start_clear_loop1:  
+  movb $0, BUFFER_DATA(, %rbx, 1) 
+  incq %rbx 
+  cmpq $BUFFER_SIZE, %rbx
+  je end_clear_loop1
+  jmp start_clear_loop1
+end_clear_loop1:
   popq %rbx
 
   leave 

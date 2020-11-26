@@ -19,6 +19,7 @@ setupDataSection:
   pushq %rbp
   movq %rsp, %rbp
 
+  pushq %rax
   pushq %rbx
   pushq %rcx
   pushq %rdx
@@ -109,8 +110,181 @@ start_read_line:
   call printNewLine
 not_print:
   jmp start_read_line
-
+  
 end_read_line:
+  popq %r9
+  popq %r8
+  popq %rdi
+  popq %rsi
+  popq %rdx
+  popq %rcx
+  popq %rbx
+  popq %rax
+
+  leave
+  ret
+
+  .type doPrint, @function
+  .global doPrint
+doPrint:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  pushq %rbx
+  pushq %rcx
+  pushq %rdx
+  pushq %rsi
+  pushq %rdi
+  pushq %r8
+  pushq %r9
+
+  movq 16(%rbp), %rdi #adress of name
+
+  #print text section
+  xorq %rdx, %rdx #input arguments
+  pushq $0
+  pushq $exe_s
+  movb $0, %dl 
+  movb $2, %dh 
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #end print test section
+  #print start
+  xorq %rdx, %rdx #input arguments
+  pushq $0
+  pushq $exe_s
+  movb $1, %dl 
+  movb $0, %dh 
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #end print start
+
+  xorq %rbx, %rbx #counter
+  xorq %rcx, %rcx #address of line
+start_print_txt: 
+  incq %rbx
+
+  #setup label 
+  movq %rbx, %rdx
+  addq $48, %rdx
+  xorq %rsi, %rsi #input arguments
+  xorq %rsi, %rsi #input arguments
+  movb $9, PRINT_LABEL(, %rsi, 1)
+  incq %rsi
+  movb $36, PRINT_LABEL(, %rsi, 1)
+  incq %rsi
+  movb $108, PRINT_LABEL(, %rsi, 1)
+  incq %rsi
+  movb %dl, PRINT_LABEL(, %rsi, 1)
+  #setup label end
+
+  pushq %rdi
+  pushq %rbx
+  call readLine
+  addq $16, %rsp
+  movq %rax, %rcx
+
+  cmpq $0, %rax
+  je end_print_txt
+
+  pushq %rax
+  call countBuffer
+  addq $8, %rsp
+  movq %rax, %r9 #holds length
+
+  pushq %rcx
+  pushq %rax 
+  call readPrint
+  addq $16, %rsp
+
+  cmpq $0, %rax
+  je not_print
+
+  #print 4 into rax 
+  xorq %rdx, %rdx #input arguments
+  xorq %r9, %r9 
+  pushq $0 
+  pushq $exe_s
+  movb $4, %dh 
+  shlq $8, %rdx
+  movb $8, %dh 
+  movb $2, %dl 
+   
+  movb $0, %r9b
+  shlq $8, %r9
+  shlq $32, %r9
+  orq %r9, %rdx
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #end print 4 into rax
+  call printNewLine  
+
+  #print descriptor in rbx 
+  xorq %rdx, %rdx #input arguments
+  xorq %r9, %r9 
+  pushq $0 
+  pushq $exe_s
+  movb $1, %dh 
+  shlq $8, %rdx
+  movb $8, %dh 
+  movb $2, %dl 
+   
+  movb $1, %r9b
+  shlq $8, %r9
+  shlq $32, %r9
+  orq %r9, %rdx
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #end print desciptor
+  call printNewLine  
+  #print label in rcx 
+  xorq %rdx, %rdx #input arguments
+  xorq %r9, %r9 
+  pushq $PRINT_LABEL
+  pushq $exe_s
+  movb $4, %dh 
+  shlq $8, %rdx
+  movb $9, %dh 
+  movb $2, %dl 
+   
+  movb $3, %r9b
+  shlq $8, %r9
+  shlq $32, %r9
+  orq %r9, %rdx
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #end print label
+  call printNewLine  
+  #print size in rdx 
+  xorq %rdx, %rdx #input arguments
+  xorq %r9, %r9 
+  pushq $PRINT_LABEL
+  pushq $exe_s
+  movb $4, %dh 
+  shlq $8, %rdx
+  movb $9, %dh 
+  movb $2, %dl 
+   
+  movb $3, %r9b
+  shlq $8, %r9
+  shlq $32, %r9
+  orq %r9, %rdx
+  pushq %rdx
+  call testCom
+  addq $24, %rsp
+  #end print size into rdx
+  call printNewLine  
+
+
+
+not_print2:
+  jmp start_print_txt
+end_print_txt:
   popq %r9
   popq %r8
   popq %rdi

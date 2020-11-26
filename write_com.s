@@ -40,6 +40,9 @@ parentheses_txt:
 colon_txt:
   .ascii ":"
   .section .bss
+    .equ NUMBER_BUF_SIZE, 1
+    .lcomm NUMBER_BUF, NUMBER_BUF_SIZE
+
   .section .text
 
 
@@ -179,9 +182,12 @@ next_cmp8:
   shlq $40, %rdi
   shrq $40, %rdi
   shrq $16, %rdi
-  pushq %rdi
+  addq $48, %rdi
+  movb %dil, NUMBER_BUF
+
+  pushq $NUMBER_BUF_SIZE
   pushq %rcx
-  pushq %rsi
+  pushq $NUMBER_BUF
   call writeLine
   addq $24, %rsp
  
