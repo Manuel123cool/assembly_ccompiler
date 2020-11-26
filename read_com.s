@@ -289,6 +289,7 @@ start_print_txt:
   call writeLine
   addq $24, %rsp 
 
+  call printNewLine  
 not_print2:
   jmp start_print_txt
 end_print_txt:
