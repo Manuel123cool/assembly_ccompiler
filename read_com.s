@@ -13,6 +13,7 @@ interupt_txt:
 
   .equ PRINT_LABEL_SIZE, 5
   .lcomm PRINT_LABEL, PRINT_LABEL_SIZE
+  .lcomm TMP_PRINT_LABEL, PRINT_LABEL_SIZE
   .section .text
 
   .type setupDataSection, @function
@@ -29,6 +30,7 @@ setupDataSection:
   pushq %rdi
   pushq %r8
   pushq %r9
+  pushq %r10
 
   movq 16(%rbp), %rdi #adress of name
    
@@ -50,12 +52,12 @@ start_read_line:
   incq %rbx
 
   #setup label 
-  movq %rbx, %rdx
-  addq $48, %rdx
   xorq %rsi, %rsi #input arguments
   movb $108, PRINT_LABEL(, %rsi, 1)
-  incq %rsi
-  movb %dl, PRINT_LABEL(, %rsi, 1)
+  pushq %rbx
+  call numToString
+  addq $8, %rsp
+  movq %rax, %r10
   #setup label end
 
   pushq %rdi
@@ -87,7 +89,7 @@ start_read_line:
   movb $4, %dl 
   movb $0, %dh 
 
-  movl $2, %r8d
+  movl %r10d, %r8d
   shlq $32, %r8
   orq %r8, %rdx
   pushq %rdx
@@ -420,6 +422,76 @@ printNewLine:
   #end print new line
 
   pop %rax
+
+  leave
+  ret
+
+.type numToString, @function
+numToString:
+  pushq %rbp
+  movq %rsp, %rbp  
+
+  pushq %rdx
+  pushq %rcx
+  pushq %rbx
+  pushq %rsi
+    
+  movq 16(%rbp), %rbx
+  
+  movq $10, %rcx #divid by 
+  movq %rbx, %rax #mov num into rax
+  xorq %rsi, %rsi
+conversion_loop:
+  xorq %rdx, %rdx
+  divq %rcx
+
+  #setup label 
+  addq $48, %rdx
+  incq %rsi
+  movb %dl, PRINT_LABEL(, %rsi, 1)
+  #setup label
+ 
+  cmpq $0, %rax
+  je conversion_loop_end
+
+  jmp conversion_loop  
+conversion_loop_end:
+  xorq %rax, %rax #parent
+  movq %rsi, %rcx 
+  movq $1, %rdx #1 counter
+  
+start_reverse:
+  movb PRINT_LABEL(, %rcx, 1), %al
+  movb %al, TMP_PRINT_LABEL(, %rdx, 1) 
+
+  cmpq %rdx, %rsi
+  je end_reverse
+
+  decq %rcx
+  incq %rdx 
+
+  jmp start_reverse
+end_reverse:
+
+  xorq %rax, %rax #parent 
+  movq $1, %rdx #counter
+start_copy:
+  movb TMP_PRINT_LABEL(, %rdx, 1), %al
+  movb %al, PRINT_LABEL(, %rdx, 1)
+  
+  cmpq %rsi, %rdx
+  je end_copy
+
+  incq %rdx
+  jmp start_copy
+end_copy:
+  incq %rsi 
+  movq %rsi, %rax
+
+  popq %rsi
+  popq %rbx
+  popq %rcx
+  popq %rdx
 
   leave
   ret
