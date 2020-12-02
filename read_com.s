@@ -171,17 +171,16 @@ start_print_txt:
   incq %rbx
 
   #setup label 
-  movq %rbx, %rdx
-  addq $48, %rdx
-  xorq %rsi, %rsi #input arguments
   xorq %rsi, %rsi #input arguments
   movb $9, PRINT_LABEL(, %rsi, 1)
   incq %rsi
   movb $36, PRINT_LABEL(, %rsi, 1)
   incq %rsi
   movb $108, PRINT_LABEL(, %rsi, 1)
-  incq %rsi
-  movb %dl, PRINT_LABEL(, %rsi, 1)
+  pushq %rbx
+  call numToStringStartLater
+  addq $8, %rsp
+  movq %rax, %r10
   #setup label end
 
   pushq %rdi
@@ -250,8 +249,8 @@ start_print_txt:
   xorq %r9, %r9 
   pushq $PRINT_LABEL
   pushq $exe_s
-  movb $4, %dh 
-  shlq $8, %rdx
+  movq %r10, %rdx
+  shlq $16, %rdx
   movb $9, %dh 
   movb $2, %dl 
    
@@ -426,7 +425,7 @@ printNewLine:
   leave
   ret
 
-.type numToString, @function
+  .type numToString, @function
 numToString:
   pushq %rbp
   movq %rsp, %rbp  
@@ -485,6 +484,76 @@ start_copy:
   incq %rdx
   jmp start_copy
 end_copy:
+  incq %rsi 
+  movq %rsi, %rax
+
+  popq %rsi
+  popq %rbx
+  popq %rcx
+  popq %rdx
+
+  leave
+  ret
+
+  .type numToStringStartLater, @function
+numToStringStartLater:
+  pushq %rbp
+  movq %rsp, %rbp  
+
+  pushq %rdx
+  pushq %rcx
+  pushq %rbx
+  pushq %rsi
+    
+  movq 16(%rbp), %rbx
+  
+  movq $10, %rcx #divid by 
+  movq %rbx, %rax #mov num into rax
+  movq $2, %rsi
+conversion_loop1:
+  xorq %rdx, %rdx
+  divq %rcx
+
+  #setup label 
+  addq $48, %rdx
+  incq %rsi
+  movb %dl, PRINT_LABEL(, %rsi, 1)
+  #setup label
+ 
+  cmpq $0, %rax
+  je conversion_loop_end1
+
+  jmp conversion_loop1  
+conversion_loop_end1:
+  xorq %rax, %rax #parent
+  movq %rsi, %rcx 
+  movq $3, %rdx #3 counter
+  
+start_reverse1:
+  movb PRINT_LABEL(, %rcx, 1), %al
+  movb %al, TMP_PRINT_LABEL(, %rdx, 1) 
+
+  cmpq %rdx, %rsi
+  je end_reverse1
+
+  decq %rcx
+  incq %rdx 
+
+  jmp start_reverse1
+end_reverse1:
+
+  xorq %rax, %rax #parent 
+  movq $3, %rdx #counter
+start_copy1:
+  movb TMP_PRINT_LABEL(, %rdx, 1), %al
+  movb %al, PRINT_LABEL(, %rdx, 1)
+  
+  cmpq %rsi, %rdx
+  je end_copy1
+
+  incq %rdx
+  jmp start_copy1
+end_copy1:
   incq %rsi 
   movq %rsi, %rax
 
