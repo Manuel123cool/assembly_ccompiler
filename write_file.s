@@ -16,6 +16,7 @@ writeLine:
   movq %rsp, %rbp
 
   #save register
+  pushq %r10
   pushq %r9
   pushq %r8
   pushq %rbx
@@ -36,6 +37,7 @@ writeLine:
   movq $0666, %rdx 
   int $0x80
 
+  movq %rax, %r10
   movq %rax, %r9
 
   movq $3, %rax 
@@ -86,6 +88,16 @@ end_of_appending2:
   movq %r9, %rdx 
   int $0x80
 
+  #close file
+  movq $6, %rax
+  movq %rsi, %rbx
+  int $0x80
+
+  #close file
+  movq $6, %rax
+  movq %r10, %rbx
+  int $0x80
+
   #redo register
   popq %rdi
   popq %rsi
@@ -94,6 +106,7 @@ end_of_appending2:
   popq %rbx
   popq %r8
   popq %r9
+  popq %r10
  
   leave
   ret
@@ -192,6 +205,14 @@ start_append1:
   jmp start_append1
  
 end_of_appending1:
+  #close file
+  pushq %rax
+  movq $6, %rax
+  movq %r9, %rbx
+  int $0x80
+  popq %rax
+  #close file end
+
   xorq %r9, %r9
   addq %r8, %rax
   movq %rax, %r9
@@ -293,4 +314,3 @@ end_count_loop:
 
   leave
   ret
-  
